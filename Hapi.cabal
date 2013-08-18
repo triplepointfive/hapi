@@ -1,0 +1,27 @@
+name: Hapi
+version: 0.0.1
+cabal-version: >=1.2
+build-type: Simple
+license: AllRightsReserved
+license-file: ""
+description:  
+tested-with: GHC -any
+data-dir: ""
+ 
+executable Hapi
+    build-depends: base -any, concurrent-extra -any, hscurses -any,
+                   unbounded-delays -any
+    main-is: Main.hs
+    buildable: True
+    hs-source-dirs: src
+    other-modules: Keys Map
+    ghc-options: -Wall
+ 
+test-suite test-Hapi
+    build-depends: base -any, concurrent-extra -any, hscurses -any,
+                   unbounded-delays -any
+    type: exitcode-stdio-1.0
+    main-is: Main.hs
+    buildable: True
+    cpp-options: -DMAIN_FUNCTION=testMain
+    hs-source-dirs: src
