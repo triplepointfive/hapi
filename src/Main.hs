@@ -28,7 +28,7 @@ moveAbout walker sizes dTime = do
     erase -- clear curses's virtual screen but don't force a redraw
     mapM_ (\line -> do
         mapM_ (\a -> waddch stdScr $ castEnum a) line
-        waddch stdScr $ castEnum '\n') $ mapA
+        waddch stdScr $ castEnum '\n') mapA
     mvAddCh pY pX (castEnum '@') -- place a character in curses's virtual screen
     refresh -- copy the virtual screen to the terminal
     delay dTime

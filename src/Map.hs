@@ -168,7 +168,7 @@ walkerVisitCell walker =
     dir   = walkerDir walker
 
 newWalker :: Walker
-newWalker = Walker 11 15 DirDown 0 True $ map ( map (\c -> if c == '#'
+newWalker = Walker 1 1 DirDown 0 False $ map ( map (\c -> if c == '#'
                                                         then nonEmptyCell
                                                         else emptyCell)) mapA
 
