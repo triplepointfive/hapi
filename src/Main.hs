@@ -17,8 +17,8 @@ module Main where
 import UI.HSCurses.Curses
 import Control.Concurrent.Thread.Delay
 
-import Keys
-import Map
+import App.Keys
+import App.Map
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum

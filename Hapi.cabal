@@ -3,7 +3,7 @@ version: 0.0.1
 cabal-version: >=1.2
 build-type: Simple
 license: AllRightsReserved
-license-file: ""
+license-file: /home/maud/Projects/Hapi/LICENSE
 description:  
 tested-with: GHC -any
 data-dir: ""
@@ -14,14 +14,15 @@ executable Hapi
     main-is: Main.hs
     buildable: True
     hs-source-dirs: src
-    other-modules: Keys Map
+    other-modules: App.Cell App.Matrix App.Stuff App.Direction
     ghc-options: -Wall
  
 test-suite test-Hapi
     build-depends: base -any, concurrent-extra -any, hscurses -any,
-                   unbounded-delays -any
+                   unbounded-delays -any, tasty-hunit -any,
+                   tasty-smallcheck -any, tasty-quickcheck -any, tasty -any
     type: exitcode-stdio-1.0
-    main-is: Main.hs
+    main-is: Test.hs
     buildable: True
-    cpp-options: -DMAIN_FUNCTION=testMain
-    hs-source-dirs: src
+    hs-source-dirs: src test test/Test
+    ghc-options: -Wall -fno-warn-unused-do-bind -fno-warn-missing-signatures
