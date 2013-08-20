@@ -24,8 +24,8 @@ import App.Walker
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
 
-moveAbout :: Walker -> (Int, Int) -> Integer -> IO ()
-moveAbout walker sizes dTime = do
+moveAbout :: Walker -> Integer -> IO ()
+moveAbout walker dTime = do
     erase -- clear curses's virtual screen but don't force a redraw
     mapM_ (\line -> do
         mapM_ (\a -> waddch stdScr $ castEnum a) line
@@ -36,13 +36,13 @@ moveAbout walker sizes dTime = do
     c <- getch
     case cintToChar c of
         Just 'q' -> return ()
-        Just 'a' -> moveAbout updatedWalker sizes (dTime - 200)
-        Just 'z' -> moveAbout updatedWalker sizes (dTime + 200)
-        Nothing  -> moveAbout updatedWalker sizes dTime
+        Just 'a' -> moveAbout updatedWalker (dTime - 200)
+        Just 'z' -> moveAbout updatedWalker (dTime + 200)
+        Nothing  -> moveAbout updatedWalker dTime
         _        -> return ()
   where
     (pY, pX) = walkerPos walker
-    updatedWalker = performLogic walker sizes
+    updatedWalker = performLogic walker
 
 main :: IO ()
 main = do
@@ -52,6 +52,6 @@ main = do
     keypad stdScr True -- make the cursor keys usable
     echo False -- disable terminal echo
     _ <- cursSet CursorInvisible
-    sizes <- scrSize
-    moveAbout newWalker sizes 20000
+    -- sizes <- scrSize
+    moveAbout newWalker 20000
     endWin

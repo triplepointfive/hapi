@@ -16,7 +16,12 @@ module App.Direction (
     Direction (..)
   , directionDelta
   , dirs
+  , dirsDeltas
+  , dirTurnLeft
+  , dirTurnRight
 ) where
+
+import App.Stuff
 
 data Direction = DirUp
                | DirDown
@@ -32,3 +37,18 @@ directionDelta DirRight = ( 0,  1)
 
 dirs :: [Direction]
 dirs = [DirUp, DirDown, DirLeft, DirRight]
+
+dirsDeltas :: [(Direction, (Int, Int))]
+dirsDeltas = mapResult directionDelta dirs
+
+dirTurnRight :: Direction -> Direction
+dirTurnRight DirUp    = DirRight
+dirTurnRight DirRight = DirDown
+dirTurnRight DirDown  = DirLeft
+dirTurnRight DirLeft  = DirUp
+
+dirTurnLeft :: Direction -> Direction
+dirTurnLeft DirUp    = DirLeft
+dirTurnLeft DirLeft  = DirDown
+dirTurnLeft DirDown  = DirRight
+dirTurnLeft DirRight = DirUp
