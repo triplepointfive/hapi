@@ -19,6 +19,7 @@ import Control.Concurrent.Thread.Delay
 
 import App.Keys
 import App.Map
+import App.Walker
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
