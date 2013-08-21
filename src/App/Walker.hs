@@ -22,11 +22,13 @@ module App.Walker (
   , walkerPrintCell
   , newWalker
   , mapA
+  , walkerBestDir
 ) where
 
 
 import Data.Maybe
 import Data.List
+import Data.Functor ((<$>))
 
 import App.Cell
 import App.Direction
@@ -68,8 +70,8 @@ mapA = ["################################"
       , "################################"]
 
 
-cellValid :: Cell -> (Int, Int) -> Bool
-cellValid cell coords = not $ cellVisited cell || (mapA ! coords) == '#'
+cellValid :: Cell -> (Int, Int) -> Matrix Char -> Bool
+cellValid cell coords grid = not $ cellVisited cell || (grid ! coords) == '#'
 
 data Walker =
     Walker { walkerPosY  :: !Int
@@ -106,10 +108,9 @@ walkerVisitCell walker =
     cells = walkerCells walker
     dir   = walkerDir walker
 
-newWalker :: Walker
-newWalker = Walker 1 1 DirUp 0 False $ map ( map (\c -> if c == '#'
-                                                        then nonEmptyCell
-                                                        else emptyCell)) mapA
+newWalker :: (Int, Int) -> Matrix Char -> Walker
+newWalker (pY, pX) grid = Walker pY pX DirUp 0 False $
+    map ( map (\c -> if c == '#' then nonEmptyCell else emptyCell)) grid
 
 walkerCellNotValid :: Walker -> Bool
 walkerCellNotValid walker = cellVisited cell || dir `elem` (cellDirections cell)
@@ -125,11 +126,19 @@ walkerCollision walker = if matrixValid mapA $ wPos
     wPos = walkerPos walker
     mapValid = not $ (mapA ! wPos) == '#' || walkerCellNotValid walker
 
-walkerAvailableCells :: Walker -> [(Direction, Cell)]
-walkerAvailableCells walker = mapSnd fromJust $ filterSnd isJust $
-    mapSnd (\pos -> matrixSafeSubscription (walkerCells walker) $
-                                           pairSum pos $ walkerPos walker)
-           dirsDeltas
+walkerBestDir :: Walker -> Maybe Direction
+walkerBestDir walker = fst <$> (listToMaybe $ sortWith (length.cellDirections.snd)
+                                  $ walkerAvailableCells walker mapA)
+
+walkerAvailableCells :: Walker -> Matrix Char -> [(Direction, Cell)]
+walkerAvailableCells walker grid = mapSnd snd $
+    filter ((\(pos, cell) -> cellValid cell pos grid).snd) $
+            mapSnd (\pos -> (pos, cells ! pos)) $
+                  filter ((matrixValid cells).snd) $
+                         mapSnd (pairSum wPos) dirsDeltas
+  where
+    cells = walkerCells walker
+    wPos  = walkerPos walker
 
 walkerTurn :: Walker -> Walker
 walkerTurn walker = if walkerLastT walker
@@ -142,15 +151,16 @@ walkerTurn walker = if walkerLastT walker
     updatedWalker = walker { walkerTurns = newTurns, walkerLastT = newDir }
 
 walkerChangeDir :: Walker -> Walker
-walkerChangeDir walker = if newPos /= walkerCell walker
+walkerChangeDir walker = walker
+{-if newPos /= walkerCell walker
                          then walker { walkerDir = newDir }
                          else walkerTurn walker
   where
     pos direct = pairSum (walkerPos walker) $ directionDelta direct
     (newDir, newPos) = fromJust $ find (\(dir, cell) ->
                                         (\c -> cellValid c (pos dir) ) cell)
-                              $ walkerAvailableCells walker
-
+                              $ walkerAvailableCells walker mapA
+-}
 walkerPrintCell :: Walker -> Matrix Char
 walkerPrintCell walker =
     [[ if cellVisited cell then '#' else ' '

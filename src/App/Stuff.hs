@@ -19,9 +19,11 @@ module App.Stuff (
   , mapResult
   , mapSnd
   , filterSnd
+  , sortWith
+  , applySnd
 ) where
 
-import Data.List (intersect)
+import Data.List (intersect, sortBy)
 
 itemsEqualOnDiff :: (Eq a) => [a] -> [a] -> Bool
 itemsEqualOnDiff a b = a == a `intersect` b
@@ -41,3 +43,9 @@ mapSnd f = map (\(c, a) -> (c, f a))
 
 filterSnd :: (a -> Bool) -> [(c, a)] -> [(c, a)]
 filterSnd f = filter (\(_, a) -> f a)
+
+sortWith :: Ord b => (a -> b) -> [a] -> [a]
+sortWith f = sortBy (\x y -> compare (f x) (f y))
+
+applySnd :: (a -> b) -> a -> (a, b)
+applySnd f a = (a, f a)

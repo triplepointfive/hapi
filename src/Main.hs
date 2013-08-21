@@ -53,5 +53,5 @@ main = do
     echo False -- disable terminal echo
     _ <- cursSet CursorInvisible
     -- sizes <- scrSize
-    moveAbout newWalker 20000
+    moveAbout (newWalker (1, 1) mapA) 20000
     endWin
