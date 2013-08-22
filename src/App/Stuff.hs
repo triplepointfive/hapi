@@ -21,6 +21,8 @@ module App.Stuff (
   , filterSnd
   , sortWith
   , applySnd
+  , compareLength
+  , applyNTimes
 ) where
 
 import Data.List (intersect, sortBy)
@@ -49,3 +51,11 @@ sortWith f = sortBy (\x y -> compare (f x) (f y))
 
 applySnd :: (a -> b) -> a -> (a, b)
 applySnd f a = (a, f a)
+
+compareLength :: [a] -> [b] -> Bool
+compareLength a b = length a == length b
+
+applyNTimes :: (a -> a) -> a -> Int -> a
+applyNTimes f a n
+    | n <= 0    = a
+    | otherwise = applyNTimes f (f a) (n - 1)

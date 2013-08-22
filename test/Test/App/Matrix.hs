@@ -9,6 +9,7 @@ tests :: TestTree
 tests = testGroup "Matrix"
     [ matrixSizesTests
     , matrixValidTests
+    , matrixIterateTests
     ]
 
 matrixSizesTests = testGroup "matrixSizes"
@@ -22,3 +23,9 @@ matrixValidTests = testGroup "matrixValid"
   , testCase "out of ranges" $
         matrixValid [[1,2,3],[1,2,3]] (2, 2) @?= False
   ]
+
+matrixIterateTests = testGroup "matrixIterate"
+  [ testCase "apply function on all matrix elements" $
+        matrixIterate [[1,2,3],[5,6,7]] (+1) @?= [[2,3,4],[6,7,8]]
+  ]
+

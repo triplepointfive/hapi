@@ -14,7 +14,7 @@ tests = testGroup "Cell"
 
 cellVisitTests = testGroup "cellVisit"
   [ testCase "move up from cell" $
-        cellDirections (cellVisit emptyCell DirUp) @?= [DirUp]
+        cellVisits (cellVisit emptyCell) @?= 1
   , testCase "mark visible if visit all directions" $
-        cellVisited (mapCall cellVisit emptyCell dirs) @?= True
+        cellVisited (applyNTimes cellVisit emptyCell $ length dirs) @?= True
   ]

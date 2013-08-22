@@ -19,6 +19,7 @@ module App.Matrix (
   , matrixSizes
   , matrixValid
   , (!)
+  , matrixIterate
 ) where
 
 type Matrix a = [[a]]
@@ -30,8 +31,8 @@ m ! (i,j) = m !! (i) !! (j)
 matrixChange :: Matrix a -> (Int, Int) -> a -> Matrix a
 matrixChange arr (pY, pX) el =
     [[ if i == pY && j == pX then el else arr ! (i, j)
-        | i <- [0..height]]
         | j <- [0..width]]
+        | i <- [0..height]]
   where (height, width) = matrixSizes arr
 
 matrixSafeSubscription :: Matrix a -> (Int, Int) -> Maybe a
@@ -45,3 +46,10 @@ matrixSizes arr = (length arr, length $ arr !! 0)
 matrixValid :: Matrix a -> (Int, Int) -> Bool
 matrixValid arr (i, j) = i >= 0 && i < height && j >= 0 && j < width
   where (height, width) = matrixSizes arr
+
+matrixIterate :: Matrix a -> (a -> b) -> Matrix b
+matrixIterate grid f = [[ f $ grid ! (i, j)
+                        | j <- [0..width -1 ]]
+                        | i <- [0..height -1 ]]
+  where (height, width) = matrixSizes grid
+

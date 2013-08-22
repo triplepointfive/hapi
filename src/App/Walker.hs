@@ -23,12 +23,14 @@ module App.Walker (
   , newWalker
   , mapA
   , walkerBestDir
+  , walkerTurn
+  , makeCell
 ) where
 
 
 import Data.Maybe
-import Data.List
 import Data.Functor ((<$>))
+import Data.Char ( digitToInt, intToDigit )
 
 import App.Cell
 import App.Direction
@@ -38,7 +40,7 @@ import App.Stuff
 mapA :: [[Char]]
 mapA = ["################################"
       , "#                              #"
-      , "# ### ######################## #"
+      , "##### ######################## #"
       , "# # ###       #   #          # #"
       , "# #     ##### ### # ######## # #"
       , "# ### ### # #  #  # #      # # #"
@@ -87,8 +89,11 @@ walkerPos walker = (walkerPosY walker, walkerPosX walker)
 
 walkerMove :: Walker -> (Int, Int) -> Walker
 walkerMove walker (mY, mX) =
-    walker {walkerPosY = pY - mY, walkerPosX = pX - mX}
+    walker {walkerPosY = pY + mY, walkerPosX = pX + mX}
   where (pY, pX) = walkerPos walker
+
+walkerStep :: Walker -> Direction -> Walker
+walkerStep walker dir = walkerMove (walkerVisitCell walker) $ directionDelta dir
 
 walkerTurnRight :: Walker -> Walker
 walkerTurnRight walker = walker { walkerDir = dirTurnRight $ walkerDir walker}
@@ -102,21 +107,24 @@ walkerCell walker = (walkerCells walker) ! (walkerPos walker)
 walkerVisitCell :: Walker -> Walker
 walkerVisitCell walker =
     walker { walkerCells = matrixChange cells pos $
-            ((flip cellVisit dir) . walkerCell) walker }
+            (cellVisit. walkerCell) walker }
   where
     pos   = walkerPos walker
     cells = walkerCells walker
-    dir   = walkerDir walker
 
-newWalker :: (Int, Int) -> Matrix Char -> Walker
-newWalker (pY, pX) grid = Walker pY pX DirUp 0 False $
-    map ( map (\c -> if c == '#' then nonEmptyCell else emptyCell)) grid
+newWalker :: (Int, Int) -> Matrix Char -> Direction -> Walker
+newWalker (pY, pX) grid dir = Walker pY pX dir 0 False $
+    map ( map makeCell) grid
+
+
+makeCell :: Char -> Cell
+makeCell c = case c of
+    '#' -> nonEmptyCell
+    ' ' -> emptyCell
+    _   -> visitedCell $ digitToInt c
 
 walkerCellNotValid :: Walker -> Bool
-walkerCellNotValid walker = cellVisited cell || dir `elem` (cellDirections cell)
-  where
-    cell = walkerCell walker
-    dir  = walkerDir walker
+walkerCellNotValid walker = cellVisited $ walkerCell walker
 
 walkerCollision :: Walker -> Bool
 walkerCollision walker = if matrixValid mapA $ wPos
@@ -126,9 +134,9 @@ walkerCollision walker = if matrixValid mapA $ wPos
     wPos = walkerPos walker
     mapValid = not $ (mapA ! wPos) == '#' || walkerCellNotValid walker
 
-walkerBestDir :: Walker -> Maybe Direction
-walkerBestDir walker = fst <$> (listToMaybe $ sortWith (length.cellDirections.snd)
-                                  $ walkerAvailableCells walker mapA)
+walkerBestDir :: Walker -> Matrix Char -> Maybe Direction
+walkerBestDir walker grid = fst <$> (listToMaybe $ sortWith (cellVisits.snd)
+                                  $ walkerAvailableCells walker grid)
 
 walkerAvailableCells :: Walker -> Matrix Char -> [(Direction, Cell)]
 walkerAvailableCells walker grid = mapSnd snd $
@@ -140,32 +148,21 @@ walkerAvailableCells walker grid = mapSnd snd $
     cells = walkerCells walker
     wPos  = walkerPos walker
 
-walkerTurn :: Walker -> Walker
-walkerTurn walker = if walkerLastT walker
-                    then walkerTurnLeft updatedWalker
-                    else walkerTurnRight updatedWalker
-  where
-    turns = walkerTurns walker
-    oldDir = walkerLastT walker
-    (newTurns, newDir) = if turns > 4 then (0, not oldDir) else (turns + 1, oldDir)
-    updatedWalker = walker { walkerTurns = newTurns, walkerLastT = newDir }
+walkerTurn :: Walker -> Matrix Char -> Walker
+walkerTurn walker grid = if isNothing bestDir
+                         then walker
+                         else walkerStep walker $ fromJust bestDir
+  where bestDir = walkerBestDir walker grid
 
-walkerChangeDir :: Walker -> Walker
-walkerChangeDir walker = walker
-{-if newPos /= walkerCell walker
-                         then walker { walkerDir = newDir }
-                         else walkerTurn walker
-  where
-    pos direct = pairSum (walkerPos walker) $ directionDelta direct
-    (newDir, newPos) = fromJust $ find (\(dir, cell) ->
-                                        (\c -> cellValid c (pos dir) ) cell)
-                              $ walkerAvailableCells walker mapA
--}
+walkerChangeDir :: Walker -> Matrix Char -> Walker
+walkerChangeDir walker grid = if isJust newDir
+                         then walker { walkerDir = fromJust newDir }
+                         else walker
+  where newDir = walkerBestDir walker grid
+
 walkerPrintCell :: Walker -> Matrix Char
 walkerPrintCell walker =
-    [[ if cellVisited cell then '#' else ' '
-        | i <- [0..width -1 ], let cell = cells ! (i, j) ]
-        | j <- [0..height -1 ]]
-  where
-    cells  = walkerCells walker
-    (height, width) = matrixSizes cells
+    matrixIterate (walkerCells walker)
+                  (\cell -> if cellVisited cell
+                            then '#'
+                            else intToDigit $ cellVisits cell)

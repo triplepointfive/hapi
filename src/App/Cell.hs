@@ -17,24 +17,26 @@ module App.Cell (
   , emptyCell
   , nonEmptyCell
   , cellVisit
+  , visitedCell
 ) where
 
-import App.Stuff ( itemsEqualOnDiff )
 import App.Direction
 
 data Cell =
     Cell { cellVisited :: !Bool
-         , cellDirections :: ![Direction]
+         , cellVisits  :: !Int
          } deriving (Show, Read, Eq)
 
 emptyCell :: Cell
-emptyCell = Cell False []
+emptyCell = Cell False 0
 
 nonEmptyCell :: Cell
-nonEmptyCell = Cell True []
+nonEmptyCell = Cell True $ length dirs
 
-cellVisit :: Cell -> Direction -> Cell
-cellVisit cell@(Cell True _) _ = cell
-cellVisit orig dir = orig { cellVisited    = itemsEqualOnDiff dirs directions,
-                            cellDirections = directions }
-  where directions = dir : cellDirections orig
+visitedCell :: Int -> Cell
+visitedCell = Cell False
+
+cellVisit :: Cell -> Cell
+cellVisit cell = cell { cellVisited = (cellVisited cell) || length dirs == visits,
+                        cellVisits  = visits }
+  where visits = 1 + cellVisits cell

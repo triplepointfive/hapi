@@ -23,8 +23,4 @@ import App.Direction
 import App.Walker
 
 performLogic :: Walker -> Walker
-performLogic walker =
-    if walkerCollision updatedWalker
-    then walkerVisitCell updatedWalker
-    else walkerChangeDir walker
-  where updatedWalker = walkerMove walker $ (directionDelta . walkerDir) walker
+performLogic walker = walkerTurn walker mapA
