@@ -4,23 +4,25 @@ cabal-version: >=1.2
 build-type: Simple
 license: AllRightsReserved
 license-file: /home/maud/Projects/Hapi/LICENSE
+description:  
 tested-with: GHC -any
 data-dir: ""
  
 executable Hapi
     build-depends: base -any, concurrent-extra -any, hscurses -any,
-                   unbounded-delays -any
+                   mtl -any, tasty -any, tasty-hunit -any, tasty-quickcheck -any,
+                   tasty-smallcheck -any, unbounded-delays -any
     main-is: Main.hs
     buildable: True
     hs-source-dirs: src
-    other-modules: App.Walker App.Cell App.Matrix App.Stuff
-                   App.Direction
+    other-modules: App.Cell App.Matrix App.Stuff App.Direction
+                   App.Walker App.Panel
     ghc-options: -Wall
  
 test-suite test-Hapi
     build-depends: base -any, concurrent-extra -any, hscurses -any,
-                   unbounded-delays -any, tasty-hunit -any, tasty-smallcheck -any,
-                   tasty-quickcheck -any, tasty -any
+                   mtl -any, tasty -any, tasty-hunit -any, tasty-quickcheck -any,
+                   tasty-smallcheck -any, unbounded-delays -any
     type: exitcode-stdio-1.0
     main-is: Test.hs
     buildable: True

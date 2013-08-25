@@ -14,6 +14,8 @@
 
 module Main where
 
+import qualified Foreign.C.Types (CInt)
+
 import UI.HSCurses.Curses
 import UI.HSCurses.CursesHelper
 import Control.Concurrent.Thread.Delay
@@ -22,45 +24,29 @@ import App.Keys
 import App.Map
 import App.Walker
 import App.Direction
+import App.Panel
+import Control.Monad.State
 
-castEnum :: Char -> ChType
-castEnum = toEnum . fromEnum
+data App = App { appPanels :: ![Panel]
+               , appWalker :: !Walker
+               , appDelay  :: !Integer
+               }
 
-data Panel =
-      Panel { panelSizes  :: !(Int, Int)
-            , panelWindow :: !Window
-            }
-    | Logger { panelSizes :: !(Int, Int)
-             , panelWindow :: !Window
-             , loggerMessages :: [String]
-             }
+loop :: StateT App IO ()
+loop = do
+    app <- get
+    (c, updatedWalker) <- io $ interactive app
+    put $ app {appWalker = updatedWalker }
+    case cintToChar c of
+        Just 'q' -> return ()
+    --        Just 'a' -> loop $ nApp {appDelay = dTime - 200}
+    --      Just 'z' -> loop $ nApp {appDelay = dTime + 200}
+        Nothing  -> loop
+        _        -> return ()
+  --where dTime   = appDelay app
 
-newPanel :: Int -> Int -> Int -> Int -> IO Panel
-newPanel l c y x = newWin l c y x >>= \win -> return $ Panel (l, c) win
-
-newLogger :: Int -> Int -> Int -> Int -> IO Panel
-newLogger l c y x = newWin l c y x >>= \win -> return $ Logger (l, c) win []
-
-panelPrint :: Panel -> String -> IO ()
-panelPrint p = wAddStr $ panelWindow p
-
-panelPrintLn :: Panel -> String -> IO ()
-panelPrintLn p s = panelPrint p s >> panelAddCh p '\n'
-
-panelAddCh :: Panel -> Char -> IO ()
-panelAddCh p c = waddch (panelWindow p) (castEnum c) >>= (\_-> return ())
-
-panelMvAdd :: Panel -> Int -> Int -> Char -> IO ()
-panelMvAdd p y x c = (wMove (panelWindow p) y x) >> panelAddCh p c
-
-panelClear :: Panel -> IO ()
-panelClear p = wclear $ panelWindow p
-
-panelRefresh :: Panel -> IO ()
-panelRefresh p = wRefresh $ panelWindow p
-
-moveAbout :: Walker -> Integer -> [Panel] -> IO ()
-moveAbout walker dTime windows = do
+interactive :: App -> IO ((Foreign.C.Types.CInt, Walker))
+interactive app = do
     panelClear rootWin
     mapM_ (panelPrintLn rootWin) mapA
     -- attrSet attr0 (Pair 1)
@@ -69,36 +55,41 @@ moveAbout walker dTime windows = do
     panelRefresh rootWin
     delay dTime
     c <- getch
-    case cintToChar c of
-        Just 'q' -> return ()
-        Just 'a' -> moveAbout updatedWalker (dTime - 200) windows
-        Just 'z' -> moveAbout updatedWalker (dTime + 200) windows
-        Nothing  -> moveAbout updatedWalker dTime windows
-        _        -> return ()
+    return $ (c, updatedWalker)
   where
     (pY, pX) = walkerPos updatedWalker
-    updatedWalker = performLogic walker
-    rootWin = windows !! 0
-    logWin  = windows !! 1
+    updatedWalker = performLogic $ appWalker app
+    rootWin = appPanels app !! 0
+    logWin  = appPanels app !! 1
+    dTime   = appDelay app
 
-main :: IO ()
-main = do
+initialize :: IO App
+initialize = do
     initCurses
-    initPair (Pair 1) red black
     startColor
+    initPair (Pair 1) red black
     cBreak True
     noDelay stdScr True
-    keypad stdScr True -- make the cursor keys usable
-    echo False -- disable terminal echo
+    keypad stdScr True
+    echo False
     _ <- cursSet CursorInvisible
     (mY, mX) <- scrSize
     rootWin <- newPanel (mY - 10) (mX - 30) 0 0
     sidebarWin <- newPanel (mY - 10) 30 0 (mX - 30)
     logWin <- newLogger 10 mX (mY - 10) 0
     refresh
+    return $ App [rootWin, logWin, sidebarWin] (newWalker (1, 1) mapA DirUp) 20000
 
-    moveAbout (newWalker (1, 1) mapA DirUp) 20000 [rootWin, logWin]
-    delWin $ panelWindow rootWin
-    delWin $ panelWindow logWin
-    delWin $ panelWindow sidebarWin
+clear :: App -> IO ()
+clear app = do
+    mapM_ (delWin.panelWindow) $ appPanels app
     endWin
+
+io :: IO a -> StateT App IO a
+io = liftIO
+
+main :: IO ()
+main = do
+    app <- initialize
+    nApp <- runStateT loop app
+    clear $ snd nApp
