@@ -4,7 +4,6 @@ cabal-version: >=1.2
 build-type: Simple
 license: AllRightsReserved
 license-file: /home/maud/Projects/Hapi/LICENSE
-description:  
 tested-with: GHC -any
 data-dir: ""
  
@@ -15,8 +14,8 @@ executable Hapi
     main-is: Main.hs
     buildable: True
     hs-source-dirs: src
-    other-modules: App.Cell App.Matrix App.Stuff App.Direction
-                   App.Walker App.Panel
+    other-modules: App.Enemy App.Horus App.Cell App.Matrix App.Stuff
+                   App.Direction App.Walker App.Panel
     ghc-options: -Wall
  
 test-suite test-Hapi

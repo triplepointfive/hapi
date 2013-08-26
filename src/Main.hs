@@ -22,15 +22,16 @@ import Control.Concurrent.Thread.Delay
 
 import App.Keys
 import App.Map
-import App.Walker
+import App.Enemy
 import App.Direction
 import App.Panel
 import Control.Monad.State
 
 data App = App { appPanels :: ![Panel]
-               , appWalker :: !Walker
+               , appWalker :: !Enemy
                , appDelay  :: !Integer
                }
+
 
 loop :: StateT App IO ()
 loop = do
@@ -45,7 +46,7 @@ loop = do
         _        -> return ()
   --where dTime   = appDelay app
 
-interactive :: App -> IO ((Foreign.C.Types.CInt, Walker))
+interactive :: App -> IO ((Foreign.C.Types.CInt, Enemy))
 interactive app = do
     panelClear rootWin
     mapM_ (panelPrintLn rootWin) mapA
@@ -78,7 +79,7 @@ initialize = do
     sidebarWin <- newPanel (mY - 10) 30 0 (mX - 30)
     logWin <- newLogger 10 mX (mY - 10) 0
     refresh
-    return $ App [rootWin, logWin, sidebarWin] (newWalker (1, 1) mapA DirUp) 20000
+    return $ App [rootWin, logWin, sidebarWin] (newEnemy (3, 1) mapA DirUp) 20000
 
 clear :: App -> IO ()
 clear app = do

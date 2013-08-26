@@ -4,6 +4,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 
 import App.Walker
+import App.Enemy
 import App.Direction
 import App.Matrix
 import App.Cell
@@ -14,7 +15,7 @@ tests = testGroup "Walker"
     , walkerCellsTests
     ]
 
-testWalker = newWalker (1, 1)
+testWalker = newEnemy (1, 1)
 
 walkerBestDirTests = testGroup "walkerBestDir"
   [ testCase "walker best choice go up" $
