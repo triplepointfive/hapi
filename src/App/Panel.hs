@@ -22,6 +22,8 @@ module App.Panel (
   , panelRefresh
   , panelClear
   , panelMvAdd
+  , panelColorSet
+  , panelResetStyle
 ) where
 
 import UI.HSCurses.Curses
@@ -63,3 +65,8 @@ panelClear p = wclear $ panelWindow p
 panelRefresh :: Panel -> IO ()
 panelRefresh p = wRefresh $ panelWindow p
 
+panelColorSet :: Panel -> Int -> IO ()
+panelColorSet p i = wAttrSet (panelWindow p) (attr0, Pair i)
+
+panelResetStyle :: Panel -> IO ()
+panelResetStyle p = wResetStyle $ panelWindow p

@@ -69,12 +69,19 @@ walkerCellsTests = testGroup "walkerCells"
         matrixIterate (walkerCells $(testWalker grid DirUp))
                       cellVisits @?= [[1,2,3,4],
                                       [4,0,4,0],
-                                      [4,2,0,4]]
+                                      [4,2,0,4]]{-
    ,  testCase "should create cells for all matrix elements" $
         let grid = ["123#",
                     "# # ",
                     "#2 #"] in
         walkerPrintCell (testWalker grid DirUp) @?= ["123#",
-                                                     "#0#0",
-                                                     "#20#"]
+                                                     "# # ",
+                                                     "#2 #"]
+   ,  testCase "should create cells for all matrix elements" $
+        let grid = ["123#",
+                    "# # ",
+                    "#2 #"] in
+        walkerPrintCell (walkerTurn (testWalker grid DirUp) grid) @?= ["123#",
+                                                                       "#1# ",
+                                                                       "#2 #"]-}
   ]

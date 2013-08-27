@@ -22,6 +22,7 @@ module App.Walker (
   , walkerPrintCell
   , walkerBestDir
   , walkerTurn
+  , walkerPrintCell
 ) where
 
 
@@ -91,4 +92,6 @@ walkerPrintCell walker =
     matrixIterate (walkerCells walker)
                   (\cell -> if cellVisited cell
                             then '#'
-                            else intToDigit $ cellVisits cell)
+                            else if cellVisits cell == 0
+                                 then ' '
+                                 else intToDigit $ cellVisits cell)

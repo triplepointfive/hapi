@@ -29,8 +29,6 @@ data Enemy =
     Enemy { enemyPosY  :: !Int
           , enemyPosX  :: !Int
           , enemyDir   :: !Direction
-          , walkerTurns :: !Int
-          , walkerLastT :: !Bool
           , enemyCells :: ![[Cell]]
           } deriving (Show, Read)
 
@@ -44,8 +42,7 @@ instance Walker Enemy where
     walkerPos a = (walkerPosY a, walkerPosX a)
 
 newEnemy :: (Int, Int) -> Matrix Char -> Direction -> Enemy
-newEnemy (pY, pX) grid dir = Enemy pY pX dir 0 False $
-    map ( map makeCell) grid
+newEnemy (pY, pX) grid dir = Enemy pY pX dir $ matrixIterate grid makeCell
 
 
 makeCell :: Char -> Cell

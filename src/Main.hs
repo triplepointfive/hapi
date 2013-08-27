@@ -25,6 +25,7 @@ import App.Map
 import App.Enemy
 import App.Direction
 import App.Panel
+import App.Walker
 import Control.Monad.State
 
 data App = App { appPanels :: ![Panel]
@@ -49,10 +50,10 @@ loop = do
 interactive :: App -> IO ((Foreign.C.Types.CInt, Enemy))
 interactive app = do
     panelClear rootWin
-    mapM_ (panelPrintLn rootWin) mapA
-    -- attrSet attr0 (Pair 1)
+    mapM_ (panelPrintLn rootWin) $ walkerPrintCell updatedWalker
+    panelColorSet rootWin 1
     panelMvAdd rootWin pY pX '@'
-    -- resetStyle
+    panelResetStyle rootWin
     panelRefresh rootWin
     delay dTime
     c <- getch
@@ -79,7 +80,7 @@ initialize = do
     sidebarWin <- newPanel (mY - 10) 30 0 (mX - 30)
     logWin <- newLogger 10 mX (mY - 10) 0
     refresh
-    return $ App [rootWin, logWin, sidebarWin] (newEnemy (3, 1) mapA DirUp) 20000
+    return $ App [rootWin, logWin, sidebarWin] (newEnemy (1, 1) mapA DirUp) 20000
 
 clear :: App -> IO ()
 clear app = do

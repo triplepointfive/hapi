@@ -10,6 +10,7 @@ tests = testGroup "Matrix"
     [ matrixSizesTests
     , matrixValidTests
     , matrixIterateTests
+    , matrixChangeTests
     ]
 
 matrixSizesTests = testGroup "matrixSizes"
@@ -29,3 +30,7 @@ matrixIterateTests = testGroup "matrixIterate"
         matrixIterate [[1,2,3],[5,6,7]] (+1) @?= [[2,3,4],[6,7,8]]
   ]
 
+matrixChangeTests = testGroup "matrixChange"
+  [ testCase "change elem in matrix" $
+        matrixChange [[1,2,3],[5,6,7]] (1,1) 8 @?= [[1,2,3],[5,8,7]]
+  ]

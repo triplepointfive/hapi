@@ -20,6 +20,7 @@ module App.Matrix (
   , matrixValid
   , (!)
   , matrixIterate
+  , matrixCoordIterate
 ) where
 
 type Matrix a = [[a]]
@@ -29,11 +30,8 @@ infix 9 !
 m ! (i,j) = m !! (i) !! (j)
 
 matrixChange :: Matrix a -> (Int, Int) -> a -> Matrix a
-matrixChange arr (pY, pX) el =
-    [[ if i == pY && j == pX then el else arr ! (i, j)
-        | j <- [0..width]]
-        | i <- [0..height]]
-  where (height, width) = matrixSizes arr
+matrixChange arr (pY, pX) el = matrixCoordIterate arr
+    (\ (i, j) a -> if i == pY && j == pX then el else a)
 
 matrixSafeSubscription :: Matrix a -> (Int, Int) -> Maybe a
 matrixSafeSubscription arr coord = if matrixValid arr coord
@@ -53,3 +51,8 @@ matrixIterate grid f = [[ f $ grid ! (i, j)
                         | i <- [0..height -1 ]]
   where (height, width) = matrixSizes grid
 
+matrixCoordIterate :: Matrix a -> ((Int, Int) -> a -> a) -> Matrix a
+matrixCoordIterate grid f = [[ f (i, j) (grid ! (i, j))
+                        | j <- [0..width -1 ]]
+                        | i <- [0..height -1 ]]
+  where (height, width) = matrixSizes grid

@@ -14,8 +14,8 @@ executable Hapi
     main-is: Main.hs
     buildable: True
     hs-source-dirs: src
-    other-modules: App.Enemy App.Horus App.Cell App.Matrix App.Stuff
-                   App.Direction App.Walker App.Panel
+    other-modules: App.Tile App.Enemy App.Horus App.Cell App.Matrix
+                   App.Stuff App.Direction App.Walker App.Panel
     ghc-options: -Wall
  
 test-suite test-Hapi
