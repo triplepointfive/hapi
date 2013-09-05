@@ -15,7 +15,6 @@
 module App.Panel (
     Panel (..)
   , newPanel
-  , newLogger
   , panelPrint
   , panelPrintLn
   , panelAddCh
@@ -36,16 +35,9 @@ data Panel =
       Panel { panelSizes  :: !(Int, Int)
             , panelWindow :: !Window
             }
-    | Logger { panelSizes :: !(Int, Int)
-             , panelWindow :: !Window
-             , loggerMessages :: [String]
-             }
 
 newPanel :: Int -> Int -> Int -> Int -> IO Panel
 newPanel l c y x = newWin l c y x >>= \win -> return $ Panel (l, c) win
-
-newLogger :: Int -> Int -> Int -> Int -> IO Panel
-newLogger l c y x = newWin l c y x >>= \win -> return $ Logger (l, c) win []
 
 panelPrint :: Panel -> String -> IO ()
 panelPrint p = wAddStr $ panelWindow p

@@ -15,6 +15,7 @@
 module Main where
 
 import qualified Foreign.C.Types (CInt)
+import Control.Monad.State
 
 import UI.HSCurses.Curses
 import UI.HSCurses.CursesHelper
@@ -26,9 +27,10 @@ import App.Enemy
 import App.Direction
 import App.Panel
 import App.Walker
-import Control.Monad.State
+import App.Logger
 
 data App = App { appPanels :: ![Panel]
+               , appLogger :: !Logger
                , appWalker :: !Enemy
                , appDelay  :: !Integer
                }
@@ -62,7 +64,6 @@ interactive app = do
     (pY, pX) = walkerPos updatedWalker
     updatedWalker = performLogic $ appWalker app
     rootWin = appPanels app !! 0
-    logWin  = appPanels app !! 1
     dTime   = appDelay app
 
 initialize :: IO App
@@ -80,7 +81,7 @@ initialize = do
     sidebarWin <- newPanel (mY - 10) 30 0 (mX - 30)
     logWin <- newLogger 10 mX (mY - 10) 0
     refresh
-    return $ App [rootWin, logWin, sidebarWin] (newEnemy (1, 1) mapA DirUp) 20000
+    return $ App [rootWin, sidebarWin] logWin (newEnemy (1, 1) mapA DirUp) 20000
 
 clear :: App -> IO ()
 clear app = do
