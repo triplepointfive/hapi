@@ -9,21 +9,21 @@ tested-with: GHC -any
 data-dir: ""
  
 executable Hapi
-    build-depends: base -any, concurrent-extra -any, hscurses -any,
-                   mtl -any, tasty -any, tasty-hunit -any, unbounded-delays -any
+    build-depends: base -any, hscurses -any, mtl -any, tasty -any,
+                   tasty-hunit -any, unbounded-delays -any, vector -any
     main-is: Main.hs
     buildable: True
     hs-source-dirs: src
-    other-modules: App.Logger App.Tile App.Enemy App.Horus App.Cell
-                   App.Matrix App.Stuff App.Direction App.Walker App.Panel
+    other-modules: App.Cell App.Direction App.Enemy App.Horus
+                   App.Matrix App.Stuff App.Tile App.Walker App.Logger App.Panel
     ghc-options: -Wall
  
 test-suite test-Hapi
-    build-depends: base -any, concurrent-extra -any, hscurses -any,
-                   mtl -any, tasty -any, tasty-hunit -any, unbounded-delays -any
+    build-depends: base -any, hscurses -any, mtl -any, tasty -any,
+                   tasty-hunit -any, unbounded-delays -any, vector -any
     type: exitcode-stdio-1.0
     main-is: Test.hs
     buildable: True
+    cpp-options: -DTEST_MODE=true
     hs-source-dirs: src test test/Test
     ghc-options: -Wall -fno-warn-unused-do-bind -fno-warn-missing-signatures
-    cpp-options: -DTEST_MODE=true
