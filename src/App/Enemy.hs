@@ -15,10 +15,7 @@
 module App.Enemy (
     Enemy (..)
   , newEnemy
-  , makeCell
 ) where
-
-import Data.Char ( digitToInt )
 
 import App.Walker
 import App.Direction
@@ -43,11 +40,3 @@ instance Walker Enemy where
 
 newEnemy :: (Int, Int) -> Matrix Char -> Direction -> Enemy
 newEnemy (pY, pX) grid dir = Enemy pY pX dir $ matrixIterate grid makeCell
-
-
-makeCell :: Char -> Cell
-makeCell c = case c of
-    '#' -> nonEmptyCell
-    ' ' -> emptyCell
-    _   -> visitedCell $ digitToInt c
-

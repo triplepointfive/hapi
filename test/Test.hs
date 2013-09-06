@@ -16,4 +16,3 @@ main = defaultMain $ testGroup "Main"
     , Test.App.Walker.tests
     , Test.App.Logger.tests
     ]
-

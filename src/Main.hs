@@ -14,57 +14,56 @@
 
 module Main where
 
-import qualified Foreign.C.Types (CInt)
 import Control.Monad.State
 
 import UI.HSCurses.Curses
 import UI.HSCurses.CursesHelper
-import Control.Concurrent.Thread.Delay
 
-import App.Keys
 import App.Map
-import App.Enemy
+import App.Horus
 import App.Direction
 import App.Panel
 import App.Walker
 import App.Logger
+import App.UserInput
 
 data App = App { appPanels :: ![Panel]
                , appLogger :: !Logger
-               , appWalker :: !Enemy
+               , appHorus  :: !Horus
                , appDelay  :: !Integer
                }
-
 
 loop :: StateT App IO ()
 loop = do
     app <- get
-    (c, updatedWalker) <- io $ interactive app
-    put $ app {appWalker = updatedWalker }
-    case cintToChar c of
-        Just 'q' -> return ()
-    --        Just 'a' -> loop $ nApp {appDelay = dTime - 200}
-    --      Just 'z' -> loop $ nApp {appDelay = dTime + 200}
-        Nothing  -> loop
-        _        -> return ()
-  --where dTime   = appDelay app
+    io $ appOutput app
+    inp <- io $ getInput app
+    case inp of
+        Just Exit -> return ()
+        Just (Move dir) -> do
+            put $ app {appHorus = walkerTryMove (appHorus app) mapA dir}
+            loop
+        _ -> loop
 
-interactive :: App -> IO ((Foreign.C.Types.CInt, Enemy))
-interactive app = do
+getInput :: App -> IO (Maybe UserInput)
+getInput app = do
+    c <- getch
+    return $ processInput c
+
+appOutput :: App -> IO ()
+appOutput app = do
     panelClear rootWin
-    mapM_ (panelPrintLn rootWin) $ walkerPrintCell updatedWalker
+    mapM_ (panelPrintLn rootWin) $ walkerPrintCell walker
     panelColorSet rootWin 1
     panelMvAdd rootWin pY pX '@'
     panelResetStyle rootWin
     panelRefresh rootWin
-    delay dTime
-    c <- getch
-    return $ (c, updatedWalker)
+    loggerPrintLastMessages (appLogger app) logWin
   where
-    (pY, pX) = walkerPos updatedWalker
-    updatedWalker = performLogic $ appWalker app
+    walker   = appHorus app
+    (pY, pX) = walkerPos walker
     rootWin = appPanels app !! 0
-    dTime   = appDelay app
+    logWin  = appPanels app !! 1
 
 initialize :: IO App
 initialize = do
@@ -72,16 +71,16 @@ initialize = do
     startColor
     initPair (Pair 1) red black
     cBreak True
-    noDelay stdScr True
+    -- noDelay stdScr True
     keypad stdScr True
     echo False
     _ <- cursSet CursorInvisible
     (mY, mX) <- scrSize
     rootWin <- newPanel (mY - 10) (mX - 30) 0 0
     sidebarWin <- newPanel (mY - 10) 30 0 (mX - 30)
-    logWin <- newLogger 10 mX (mY - 10) 0
+    logWin <- newPanel 10 mX (mY - 10) 0
     refresh
-    return $ App [rootWin, sidebarWin] logWin (newEnemy (1, 1) mapA DirUp) 20000
+    return $ App [rootWin, logWin, sidebarWin] (newLogger) (newHorus (1, 1) mapA DirUp) 20000
 
 clear :: App -> IO ()
 clear app = do

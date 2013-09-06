@@ -18,7 +18,10 @@ module App.Cell (
   , nonEmptyCell
   , cellVisit
   , visitedCell
+  , makeCell
 ) where
+
+import Data.Char ( digitToInt )
 
 import App.Direction
 
@@ -40,3 +43,10 @@ cellVisit :: Cell -> Cell
 cellVisit cell = cell { cellVisited = (cellVisited cell) || length dirs == visits,
                         cellVisits  = visits }
   where visits = 1 + cellVisits cell
+
+makeCell :: Char -> Cell
+makeCell c = case c of
+    '#' -> nonEmptyCell
+    ' ' -> emptyCell
+    _   -> visitedCell $ digitToInt c
+

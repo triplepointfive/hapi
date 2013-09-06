@@ -22,7 +22,8 @@ module App.Walker (
   , walkerPrintCell
   , walkerBestDir
   , walkerTurn
-  , walkerPrintCell
+  , walkerStep
+  , walkerTryMove
 ) where
 
 
@@ -64,6 +65,11 @@ walkerVisitCell walker = walkerSetCells walker $ matrixChange (walkerCells walke
 walkerBestDir :: (Walker a) => a -> Matrix Char -> Maybe Direction
 walkerBestDir walker grid = fst <$> (listToMaybe $ sortWith (cellVisits.snd)
                                   $ walkerAvailableCells walker grid)
+
+walkerTryMove :: (Walker a) => a -> Matrix Char -> Direction -> a
+walkerTryMove walker grid dir = if dir `elem` (map fst $ walkerAvailableCells walker grid)
+                                then walkerStep walker dir
+                                else walker
 
 walkerAvailableCells :: (Walker a) => a -> Matrix Char -> [(Direction, Cell)]
 walkerAvailableCells walker grid = mapSnd snd $
