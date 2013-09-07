@@ -6,6 +6,7 @@ import Test.Tasty.HUnit
 import qualified Data.Vector as Vector
 
 import App.Logger
+import App.Message
 
 tests :: TestTree
 tests = testGroup "Logger"
@@ -13,17 +14,17 @@ tests = testGroup "Logger"
     , loggerNewestMessagesTests
     ]
 
-loggerAddMessageTests = testGroup "loggerAddMessage"
+loggerAddMessageTests = testGroup "loggerAddString"
   [ testCase "add message to new logger" $
-        Vector.length (loggerMessages $ loggerAddMessage newLogger "Hello, Logger!") @?= 1
+        Vector.length (loggerMessages $ loggerAddString newLogger "Hello, Logger!") @?= 1
   , testCase "add messages to the beginning of list" $
-        loggerMessages (loggerAddMessage (loggerAddMessage newLogger "1") "2")
-            @?= Vector.fromList ["2", "1"]
+        loggerMessages (loggerAddString (loggerAddString newLogger "1") "2")
+            @?= Vector.fromList (map messageFromString ["2", "1"])
   ]
 
 loggerNewestMessagesTests = testGroup "loggerNewestMessages"
   [ testCase "should return last messages" $
         loggerNewestMessages
-            ( foldl loggerAddMessage newLogger ["1", "2","3", "4", "5", "6", "7"] ) 5
-            @?= ["7","6","5","4","3"]
+            ( foldl loggerAddString newLogger ["1", "2","3", "4", "5", "6", "7"] ) 5
+            @?= map messageFromString ["7","6","5","4","3"]
   ]

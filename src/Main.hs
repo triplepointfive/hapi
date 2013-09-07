@@ -26,6 +26,7 @@ import App.Walker
 import App.Logger
 import App.UserInput
 import App.Color
+import qualified App.I18n as I18n
 
 data App = App
     { appPanels :: ![Panel]
@@ -42,7 +43,10 @@ loop = do
     case inp of
         Just Exit -> return ()
         Just (Move dir) -> do
-            State.put $ app {appHorus = walkerTryMove (appHorus app) mapA dir}
+            State.put $ app
+                {appHorus = walkerTryMove (appHorus app) mapA dir,
+                 appLogger = loggerAddMessage (appLogger app)
+                                              $ I18n.t (I18n.PosChanged $ walkerPos $ appHorus app) }
             loop
         _ -> loop
 
