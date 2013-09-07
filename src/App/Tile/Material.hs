@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 --
--- Module      :  App.Tile
+-- Module      :  App.Tile.Material
 -- Copyright   :
 -- License     :  AllRightsReserved
 --
@@ -12,9 +12,20 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Tile
+module App.Tile.Material
     (
+      Material (..)
+    , materialColor
     ) where
 
 import App.Color
-import App.Tile.Material
+
+data Material
+  = MWooden
+  | MStone
+  deriving (Show, Eq)
+
+materialColor :: Material -> Color
+materialColor mat = case mat of
+    MWooden -> CRed
+    MStone  -> CWhite

@@ -12,22 +12,24 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Direction (
-    Direction (..)
-  , directionDelta
-  , dirs
-  , dirsDeltas
-  , dirTurnLeft
-  , dirTurnRight
-) where
+module App.Direction
+    (
+      Direction (..)
+    , directionDelta
+    , dirs
+    , dirsDeltas
+    , dirTurnLeft
+    , dirTurnRight
+    ) where
 
 import App.Stuff
 
-data Direction = DirUp
-               | DirDown
-               | DirLeft
-               | DirRight
-               deriving (Show, Read, Eq)
+data Direction
+    = DirUp
+    | DirDown
+    | DirLeft
+    | DirRight
+    deriving (Show, Read, Eq)
 
 directionDelta :: Direction -> (Int, Int)
 directionDelta DirUp    = ( 1,  0)

@@ -12,15 +12,16 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Map (
-    Walker (..)
-  , performLogic
-  , mapA
-) where
+module App.Map
+    (
+      Walker (..)
+    , mapA
+    ) where
 
 import App.Walker
+import App.Tile
 
-mapA :: [[Char]]
+mapA :: [String]
 mapA = ["################################"
       , "#                              #"
       , "##### ######################## #"
@@ -53,6 +54,3 @@ mapA = ["################################"
       , "# ################## # ### ### #"
       , "#                      #       #"
       , "################################"]
-
-performLogic :: (Walker a) => a -> a
-performLogic walker = walkerTurn walker mapA

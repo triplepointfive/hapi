@@ -13,21 +13,22 @@
 -----------------------------------------------------------------------------
 
 module App.Horus
-  ( Horus (..)
-  , newHorus
-) where
+    (
+      Horus (..)
+    , newHorus
+    ) where
 
 import App.Walker
 import App.Direction
 import App.Cell
 import App.Matrix
 
-data Horus =
-    Horus { horusPosY  :: !Int
-          , horusPosX  :: !Int
-          , horusDir   :: !Direction
-          , horusCells :: ![[Cell]]
-          } deriving (Show, Read)
+data Horus = Horus
+    { horusPosY  :: !Int
+    , horusPosX  :: !Int
+    , horusDir   :: !Direction
+    , horusCells :: ![[Cell]]
+    } deriving (Show, Read)
 
 instance Walker Horus where
     walkerPosX  = horusPosX
@@ -40,4 +41,3 @@ instance Walker Horus where
 
 newHorus :: (Int, Int) -> Matrix Char -> Direction -> Horus
 newHorus (pY, pX) grid dir = Horus pY pX dir $ matrixIterate grid makeCell
-

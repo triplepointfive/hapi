@@ -12,22 +12,23 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Enemy (
-    Enemy (..)
-  , newEnemy
-) where
+module App.Enemy
+    (
+      Enemy (..)
+    , newEnemy
+    ) where
 
 import App.Walker
 import App.Direction
 import App.Cell
 import App.Matrix
 
-data Enemy =
-    Enemy { enemyPosY  :: !Int
-          , enemyPosX  :: !Int
-          , enemyDir   :: !Direction
-          , enemyCells :: ![[Cell]]
-          } deriving (Show, Read)
+data Enemy = Enemy
+    { enemyPosY  :: !Int
+    , enemyPosX  :: !Int
+    , enemyDir   :: !Direction
+    , enemyCells :: ![[Cell]]
+    } deriving (Show, Read)
 
 instance Walker Enemy where
     walkerPosX  = enemyPosX

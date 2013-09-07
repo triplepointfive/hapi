@@ -12,18 +12,22 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Stuff (
-    itemsEqualOnDiff
-  , mapCall
-  , pairSum
-  , mapResult
-  , mapSnd
-  , filterSnd
-  , sortWith
-  , applySnd
-  , compareLength
-  , applyNTimes
-) where
+module App.Stuff
+    (
+      itemsEqualOnDiff
+    , mapCall
+    , pairSum
+    , mapResult
+    , mapSnd
+    , filterSnd
+    , sortWith
+    , applySnd
+    , compareLength
+    , applyNTimes
+    ) where
+
+import qualified Control.Arrow as Arrow
+import qualified Data.Function as Functor
 
 import Data.List (intersect, sortBy)
 
@@ -41,13 +45,13 @@ mapResult :: (a -> b) -> [a] -> [(a, b)]
 mapResult f = map (\a -> (a, f a))
 
 mapSnd :: (a -> b) -> [(c, a)] -> [(c, b)]
-mapSnd f = map (\(c, a) -> (c, f a))
+mapSnd f = map (Arrow.second f)
 
 filterSnd :: (a -> Bool) -> [(c, a)] -> [(c, a)]
 filterSnd f = filter (\(_, a) -> f a)
 
 sortWith :: Ord b => (a -> b) -> [a] -> [a]
-sortWith f = sortBy (\x y -> compare (f x) (f y))
+sortWith f = sortBy (compare `Functor.on` f)
 
 applySnd :: (a -> b) -> a -> (a, b)
 applySnd f a = (a, f a)

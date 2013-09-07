@@ -12,24 +12,24 @@
 --
 -----------------------------------------------------------------------------
 
-{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, TypeSynonymInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, TypeSynonymInstances #-}
 
-module App.Walker (
-    Walker (..)
-  , walkerVisitCell
-  , walkerChangeDir
-  , walkerMove
-  , walkerPrintCell
-  , walkerBestDir
-  , walkerTurn
-  , walkerStep
-  , walkerTryMove
-) where
+module App.Walker
+    (
+      Walker (..)
+    , walkerVisitCell
+    , walkerChangeDir
+    , walkerMove
+    , walkerPrintCell
+    , walkerBestDir
+    , walkerTurn
+    , walkerStep
+    , walkerTryMove
+    ) where
 
-
-import Data.Maybe
-import Data.Functor ((<$>))
-import Data.Char ( intToDigit )
+import qualified Data.Char as Char
+import qualified Data.Functor as Functor
+import qualified Data.Maybe as Maybe
 
 import App.Cell
 import App.Direction
@@ -56,18 +56,18 @@ walkerStep :: (Walker a) => a -> Direction -> a
 walkerStep walker dir = walkerMove (walkerVisitCell walker) $ directionDelta dir
 
 walkerCell :: (Walker a) => a -> Cell
-walkerCell walker = (walkerCells walker) ! (walkerPos walker)
+walkerCell walker = walkerCells walker ! walkerPos walker
 
 walkerVisitCell :: (Walker a) => a -> a
 walkerVisitCell walker = walkerSetCells walker $ matrixChange (walkerCells walker)
                             (walkerPos walker) $ (cellVisit. walkerCell) walker
 
 walkerBestDir :: (Walker a) => a -> Matrix Char -> Maybe Direction
-walkerBestDir walker grid = fst <$> (listToMaybe $ sortWith (cellVisits.snd)
+walkerBestDir walker grid = fst Functor.<$> Maybe.listToMaybe (sortWith (cellVisits.snd)
                                   $ walkerAvailableCells walker grid)
 
 walkerTryMove :: (Walker a) => a -> Matrix Char -> Direction -> a
-walkerTryMove walker grid dir = if dir `elem` (map fst $ walkerAvailableCells walker grid)
+walkerTryMove walker grid dir = if dir `elem` map fst (walkerAvailableCells walker grid)
                                 then walkerStep walker dir
                                 else walker
 
@@ -75,22 +75,18 @@ walkerAvailableCells :: (Walker a) => a -> Matrix Char -> [(Direction, Cell)]
 walkerAvailableCells walker grid = mapSnd snd $
     filter ((\(pos, cell) -> cellValid cell pos grid).snd) $
             mapSnd (\pos -> (pos, cells ! pos)) $
-                  filter ((matrixValid cells).snd) $
+                  filter (matrixValid cells.snd) $
                          mapSnd (pairSum wPos) dirsDeltas
   where
     cells = walkerCells walker
     wPos  = walkerPos walker
 
 walkerTurn :: (Walker a) => a -> Matrix Char -> a
-walkerTurn walker grid = if isNothing bestDir
-                         then walker
-                         else walkerStep walker $ fromJust bestDir
+walkerTurn walker grid = maybe walker (walkerStep walker) bestDir
   where bestDir = walkerBestDir walker grid
 
 walkerChangeDir :: (Walker a ) => a -> Matrix Char -> a
-walkerChangeDir walker grid = if isJust newDir
-                              then walkerSetDir walker $ fromJust newDir
-                              else walker
+walkerChangeDir walker grid = maybe walker (walkerSetDir walker) newDir
   where newDir = walkerBestDir walker grid
 
 walkerPrintCell :: (Walker a) => a -> Matrix Char
@@ -100,4 +96,4 @@ walkerPrintCell walker =
                             then '#'
                             else if cellVisits cell == 0
                                  then ' '
-                                 else intToDigit $ cellVisits cell)
+                                 else Char.intToDigit $ cellVisits cell)

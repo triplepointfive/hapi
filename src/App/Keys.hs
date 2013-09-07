@@ -12,9 +12,10 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Keys (
-  cintToChar
-) where
+module App.Keys
+    (
+      cintToChar
+    ) where
 
 import qualified Foreign.C.Types (CInt)
 

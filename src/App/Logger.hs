@@ -12,13 +12,14 @@
 --
 -----------------------------------------------------------------------------
 
-module App.Logger (
-    Logger (..)
-  , newLogger
-  , loggerAddMessage
-  , loggerNewestMessages
-  , loggerPrintLastMessages
-) where
+module App.Logger
+    (
+      Logger (..)
+    , newLogger
+    , loggerAddMessage
+    , loggerNewestMessages
+    , loggerPrintLastMessages
+    ) where
 
 import qualified Data.Vector as Vector
 
@@ -26,10 +27,9 @@ import App.Panel
 
 type Message = String
 
-data Logger =
-    Logger {
-             loggerMessages :: Vector.Vector String
-           }
+data Logger = Logger
+    { loggerMessages :: Vector.Vector String
+    }
 
 newLogger :: Logger
 newLogger = Logger Vector.empty
